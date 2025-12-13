@@ -1,0 +1,46 @@
+from datetime import datetime
+from extensions import db
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
+
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    company = db.Column(db.String(120))
+    password_hash = db.Column(db.String(256))
+    system_prompt = db.Column(db.Text)
+    phone_number = db.Column(db.String(20)) # The phone number associated with this account (business phone)
+    menu = db.Column(db.Text) # JSON or text representation of the menu
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+        
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+class Order(db.Model):
+    __tablename__ = 'orders'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    status = db.Column(db.String(20), default='recu') # recu, en_cours, termine
+    order_detail = db.Column(db.Text, nullable=False)
+    customer_name = db.Column(db.String(100))
+    customer_phone = db.Column(db.String(20))
+    address = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Optional: Link order to a specific user (restaurant) if needed in future
+    # user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'status': self.status,
+            'order_detail': self.order_detail,
+            'customer_name': self.customer_name,
+            'customer_phone': self.customer_phone,
+            'address': self.address,
+            'created_at': self.created_at.isoformat()
+        }

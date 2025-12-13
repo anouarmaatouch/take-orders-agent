@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: gunicorn -k gevent -w 1 -b 0.0.0.0:5000 app:app
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/restau_db
+    dns:
+      - 8.8.8.8
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=restau_db
+    ports:
+      - "5432:5432"
+    restart: always
+
+volumes:
+  postgres_data:
