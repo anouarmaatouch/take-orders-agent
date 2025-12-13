@@ -13,12 +13,28 @@ class User(UserMixin, db.Model):
     system_prompt = db.Column(db.Text)
     phone_number = db.Column(db.String(20)) # The phone number associated with this account (business phone)
     menu = db.Column(db.Text) # JSON or text representation of the menu
+    agent_on = db.Column(db.Boolean, default=True)
+    voice = db.Column(db.String(20), default='sage')
+    is_admin = db.Column(db.Boolean, default=False)
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
         
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'company': self.company,
+            'phone_number': self.phone_number,
+            'voice': self.voice,
+            'agent_on': self.agent_on,
+            'system_prompt': self.system_prompt,
+            'menu': self.menu,
+            'is_admin': self.is_admin
+        }
 
 class Order(db.Model):
     __tablename__ = 'orders'

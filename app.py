@@ -48,10 +48,12 @@ def create_app():
     from routes.auth import auth_bp
     from routes.orders import orders_bp
     from routes.voice import voice_bp
+    from routes.admin import admin_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(orders_bp)
     app.register_blueprint(voice_bp)
+    app.register_blueprint(admin_bp)
     
     with app.app_context():
         db.create_all()

@@ -15,6 +15,21 @@
     <div class="glass header margin-bottom">
         <h1>Dashboard Commandes</h1>
         <div style="display: flex; gap: 1rem; align-items: center;">
+
+            <!-- Agent Status Indicator/Link -->
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem;">
+                <span style="font-size: 0.9rem; opacity: 0.7;">Agent:</span>
+                <span class="badge {{ 'green' if current_user.agent_on else 'red' }}"
+                    style="padding: 2px 6px; border-radius: 4px; background: {{ '#10b98122' if current_user.agent_on else '#ef444422' }}; color: {{ '#10b981' if current_user.agent_on else '#ef4444' }}; cursor: default;">
+                    {{ 'ON' if current_user.agent_on else 'OFF' }}
+                </span>
+            </div>
+
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('admin.index') }}" class="btn" style="background: var(--accent-warning);">Admin
+                Panel</a>
+            {% endif %}
+
             <span>{{ current_user.company }}</span>
             <a href="{{ url_for('auth.logout') }}" class="btn logout-btn">Déconnexion</a>
         </div>

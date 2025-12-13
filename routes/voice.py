@@ -21,7 +21,7 @@ def event():
 
 @voice_bp.route('/webhooks/answer', methods=['POST', 'GET'])
 def answer_call():
-    return jsonify([{"action": "talk", "text": "Hello, your call is connected."}])
+    #return jsonify([{"action": "talk", "text": "Hello, your call is connected."}])
 
     # "to" is the Vonage number being called
     data = request.get_json() or {}
@@ -56,11 +56,29 @@ def voice_stream(ws):
     # 1. Fetch Context
     user = User.query.filter_by(phone_number=to_number).first()
     
+    if user and not user.agent_on:
+        # Agent is OFF
+        # We can play a message or just close
+        # Ideally we should assume the webhook 'answer' handles this, but here we can just close with a text to speech?
+        # OpenAI Realtime doesn't support "just say one thing and leave" easily without connection.
+        # But we can just return early or not connect. 
+        # But vonage is already connected to this websocket.
+        # We'll just close for now or let it be silent.
+        # Better: Connect to OpenAI just to say "We are closed" (expensive?) or just close socket.
+        current_app.logger.info(f"Call rejected: Agent Off for {to_number}")
+        ws.close()
+        return
+
     system_instruction = "You are a helpful AI assistant taking food orders."
-    if user and user.system_prompt:
-        system_instruction = user.system_prompt
-    if user and user.menu:
-         system_instruction += f"\n\nHere is the Menu:\n{user.menu}"
+    voice_api = 'sage' # Default
+    
+    if user:
+        if user.system_prompt:
+             system_instruction = user.system_prompt
+        if user.menu:
+             system_instruction += f"\n\nHere is the Menu:\n{user.menu}"
+        if user.voice:
+             voice_api = user.voice
     
     system_instruction += "\n\nWhen the order is confirmed, you MUST use the 'create_order_tool' to submit it. Ask for name and address if missing."
 
@@ -85,7 +103,7 @@ def voice_stream(ws):
             "session": {
                 "modalities": ["text", "audio"],
                 "instructions": system_instruction,
-                "voice": "alloy",
+                "voice": voice_api,
                 "input_audio_format": "pcm16",
                 "output_audio_format": "pcm16",
                 "turn_detection": {
