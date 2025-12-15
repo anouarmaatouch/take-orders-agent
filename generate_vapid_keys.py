@@ -3,7 +3,6 @@ from cryptography.hazmat.primitives.asymmetric import ec
 import base64
 
 def generate_vapid_keys():
-    # Use instance of SECP256R1, fixing the error user saw with class
     private_key = ec.generate_private_key(ec.SECP256R1()) 
     
     # Public Key
