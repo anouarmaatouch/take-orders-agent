@@ -21,6 +21,7 @@ def event():
 
 @voice_bp.route('/webhooks/answer', methods=['POST', 'GET'])
 def answer_call():
+    # Uncomment the line below to test connection between Vonage and the app
     #return jsonify([{"action": "talk", "text": "Hello, your call is connected."}])
 
     # "to" is the Vonage number being called
@@ -81,16 +82,9 @@ def voice_stream(ws):
             user = User.query.filter_by(phone_number=f"+{to_number}").first()
     
     current_app.logger.info(f"Incoming call to: {to_number} (Matched User: {user.username if user else 'None'})")
-    
+
+    # Allow calls for a phone number only if agent is set to on
     if user and not user.agent_on:
-        # Agent is OFF
-        # We can play a message or just close
-        # Ideally we should assume the webhook 'answer' handles this, but here we can just close with a text to speech?
-        # OpenAI Realtime doesn't support "just say one thing and leave" easily without connection.
-        # But we can just return early or not connect. 
-        # But vonage is already connected to this websocket.
-        # We'll just close for now or let it be silent.
-        # Better: Connect to OpenAI just to say "We are closed" (expensive?) or just close socket.
         current_app.logger.info(f"Call rejected: Agent Off for {to_number}")
         ws.close()
         return
