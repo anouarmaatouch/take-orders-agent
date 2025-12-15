@@ -140,10 +140,6 @@ Configure your Vonage application webhooks:
 - **Answer URL**: `https://your-domain.com/webhooks/answer`
 - **Event URL**: `https://your-domain.com/webhooks/event`
 
-## 📄 License
-
-MIT License - feel free to use this project for your own restaurant or as a portfolio piece!
-
 ## 🙏 Acknowledgments
 
 - [OpenAI Realtime API](https://platform.openai.com/docs/guides/realtime) for voice AI
